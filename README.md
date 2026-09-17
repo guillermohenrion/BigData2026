@@ -2,6 +2,10 @@
 
 Proyecto de Prueba de GitHub Actions y MLFlow
 
+## Nueva práctica integrada en Databricks
+
+El piloto de la nueva secuencia práctica se encuentra en [`practicas/`](practicas/README.md). La primera clase incluye setup para Databricks Free Edition, generación de datos, ingesta CSV/JSON/Parquet, tablas Bronze en Delta y un desafío de evolución de esquema. Las carpetas históricas `clase-1` a `clase-4` se mantienen como referencia.
+
 Este proyecto fue creado con el objetivo de probar y demostrar cómo configurar y utilizar **GitHub Actions** en un entorno de desarrollo Python.
 Ademas como ejemplo para mostrar capacidades de MLflow 
 
