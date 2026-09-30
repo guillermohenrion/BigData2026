@@ -1,0 +1,5 @@
+# Los scripts corren en bash (Git Bash o dentro de contenedores Linux): con CRLF fallan
+# con "$'\r': command not found". Forzamos LF aunque el clon use core.autocrlf=true.
+*.sh  text eol=lf
+*.env text eol=lf
+*.py  text eol=lf

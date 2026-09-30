@@ -1,0 +1,66 @@
+# Cluster HDFS de demo: 1 NameNode + 3 DataNodes (+ datanode4 opcional, perfil "scale")
+# Uso:  docker compose up -d
+#       docker compose --profile scale up -d datanode4   (paso 7, escalabilidad)
+
+x-datanode: &datanode
+  image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+  restart: always
+  environment:
+    SERVICE_PRECONDITION: "namenode:9870"
+  env_file:
+    - ./hadoop.env
+  depends_on:
+    - namenode
+
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    hostname: namenode
+    restart: always
+    ports:
+      - "9870:9870"   # UI web del NameNode
+      - "9000:9000"   # RPC de HDFS
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=demo-cluster
+    env_file:
+      - ./hadoop.env
+
+  datanode1:
+    <<: *datanode
+    container_name: datanode1
+    hostname: datanode1
+    volumes:
+      - hadoop_datanode1:/hadoop/dfs/data
+
+  datanode2:
+    <<: *datanode
+    container_name: datanode2
+    hostname: datanode2
+    volumes:
+      - hadoop_datanode2:/hadoop/dfs/data
+
+  datanode3:
+    <<: *datanode
+    container_name: datanode3
+    hostname: datanode3
+    volumes:
+      - hadoop_datanode3:/hadoop/dfs/data
+
+  # Paso 7 (opcional): no arranca con "up -d", solo con --profile scale
+  datanode4:
+    <<: *datanode
+    container_name: datanode4
+    hostname: datanode4
+    profiles: ["scale"]
+    volumes:
+      - hadoop_datanode4:/hadoop/dfs/data
+
+volumes:
+  hadoop_namenode:
+  hadoop_datanode1:
+  hadoop_datanode2:
+  hadoop_datanode3:
+  hadoop_datanode4:
