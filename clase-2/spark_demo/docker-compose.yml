@@ -1,0 +1,49 @@
+# Cluster Spark Standalone de demo: 1 Master + 2 Workers, en la red del cluster HDFS.
+# Requiere el cluster de ../hdfs-demo corriendo (crea la red hdfs-demo_default).
+# Uso:  docker compose up -d
+#
+# Imagen oficial apache/spark (bitnami/spark fue retirada de Docker Hub en 2025).
+# No trae variables SPARK_MODE: cada servicio arranca su proceso con spark-class.
+
+x-worker: &worker
+  image: apache/spark:3.5.3
+  command: >
+    /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker
+    spark://spark-master:7077 --cores 2 --memory 2G
+  depends_on:
+    - spark-master
+  networks:
+    - hdfs-demo_default
+
+services:
+  spark-master:
+    image: apache/spark:3.5.3
+    container_name: spark-master
+    hostname: spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master
+    ports:
+      - "8080:8080"   # UI web del Master (lista de Workers, aplicaciones)
+      - "7077:7077"   # Puerto del Master para submits
+      - "4040:4040"   # UI web del driver (jobs / stages / tasks / storage / executors)
+    volumes:
+      - ./scripts:/opt/demo:ro
+    networks:
+      - hdfs-demo_default
+
+  spark-worker-1:
+    <<: *worker
+    container_name: spark-worker-1
+    hostname: spark-worker-1
+    ports:
+      - "8081:8081"
+
+  spark-worker-2:
+    <<: *worker
+    container_name: spark-worker-2
+    hostname: spark-worker-2
+    ports:
+      - "8082:8081"
+
+networks:
+  hdfs-demo_default:
+    external: true
