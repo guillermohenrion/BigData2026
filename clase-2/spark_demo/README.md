@@ -70,42 +70,141 @@ WARN TaskSetManager: Lost task 5.0 in stage 0.0 (TID 5) (172.20.0.7 executor 1):
   stage 0  tarea  5  → spark-worker-2    3.50 s
 ```
 
-## Modo en vivo (tipeando en el shell)
+## Sesión interactiva (tipeando en el shell)
+
+La misma demo, pero escrita en vivo en `pyspark`, un bloque por vez. Los valores de salida
+son los del `dataset_demo.csv` que genera la demo de HDFS.
+
+### Abrir el shell
 
 ```bash
-./scripts/shell.sh          # pyspark conectado al cluster; ya trae sc y spark
+./scripts/shell.sh --total-executor-cores 2    # deja 2 cores libres para otra aplicación
 ```
+
+Aparece el logo de Spark y el prompt `>>>`. Ya vienen creados `sc` (SparkContext, para RDDs)
+y `spark` (SparkSession, para DataFrames y SQL). Para salir: `exit()` o Ctrl+D.
+
+### 1. Conectado al cluster
+
+```python
+sc.master                 # 'spark://spark-master:7077'
+sc.defaultParallelism     # 2  (los cores que pediste)
+```
+
+En <http://localhost:8080> aparece la aplicación `PySparkShell` con un executor por Worker.
+
+### 2. Evaluación perezosa: las transformaciones no ejecutan nada
+
+```python
+lines = sc.textFile("hdfs://namenode:9000/demo/dataset_demo.csv")
+ventas = lines.map(lambda l: l.split(","))      # vuelve al instante: todavía no leyó nada
+```
+
+<http://localhost:4040> → *Jobs* está vacío. Recién la **acción** dispara el trabajo:
+
+```python
+lines.count()             # 9013345  → ahora sí aparece un job en la UI
+lines.getNumPartitions()  # 3  (= bloques en HDFS)
+lines.take(3)
+```
+
+### 3. Map → Shuffle → Reduce con RDDs
+
+Columnas: `fecha,sucursal,producto,cantidad,precio_unitario,total`.
 
 ```python
 from operator import add
-import time
+datos = lines.filter(lambda l: not l.startswith("fecha")).map(lambda l: l.split(","))
 
-# Paso 2 — leer de HDFS
-lines = sc.textFile("hdfs://namenode:9000/demo/dataset_demo.csv")
-lines.count()
-lines.getNumPartitions()          # 3 = cantidad de bloques en HDFS
+unidades = datos.map(lambda f: (f[2], int(f[3]))).reduceByKey(add)
+unidades.takeOrdered(3, key=lambda x: -x[1])
+# [('Impresora', 3382466), ('Celular', 3382452), ('Tablet', 3381814)]
 
-# Paso 3 — Map → Shuffle → Reduce   (columnas: fecha,sucursal,producto,cantidad,precio_unitario,total)
-def parsear(linea):
-    f = linea.split(",")
-    return None if f[0] == "fecha" else (f[0], f[1], f[2], int(f[3]), int(f[4]), int(f[5]))
-
-ventas = lines.map(parsear).filter(lambda v: v is not None)
-ventas.map(lambda v: (v[1], v[5])).reduceByKey(add).collect()                 # $ por sucursal
-ventas.map(lambda v: (v[2], v[3])).reduceByKey(add).takeOrdered(3, key=lambda x: -x[1])  # top productos
-
-# Paso 4 — sin cache vs. con cache
-datos = lines.map(parsear)
-inicio = time.time(); datos.count(); print("Sin cache:", time.time() - inicio)
-inicio = time.time(); datos.count(); print("Sin cache, 2da:", time.time() - inicio)
-
-datos_cacheados = lines.map(parsear).cache()
-inicio = time.time(); datos_cacheados.count(); print("Con cache, 1ra:", time.time() - inicio)
-inicio = time.time(); datos_cacheados.count(); print("Con cache, 2da:", time.time() - inicio)
+print(unidades.toDebugString().decode())       # linaje: el "+-" es el shuffle
 ```
 
-Para el paso 5 en vivo, lanzá un job de ~40 s y, mientras corre, en otra terminal
-`docker stop spark-worker-1` (al final, `docker start spark-worker-1`):
+```
+(3) PythonRDD[6] ...
+ |  ShuffledRDD[4] at partitionBy          ← stage 2 (después del shuffle)
+ +-(3) PairwiseRDD[3] at reduceByKey       ← el "+-" marca el corte de stage
+    |  PythonRDD[2] ...
+    |  hdfs://.../dataset_demo.csv HadoopRDD[0]   ← stage 1: lectura de HDFS
+```
+
+El DAG gráfico: <http://localhost:4040> → *Jobs* → el job → *DAG Visualization*.
+
+### 4. Cache
+
+```python
+import time
+def medir(f):
+    t = time.time(); r = f(); print(round(time.time() - t, 2), "s"); return r
+
+medir(datos.count)        # ~4-5 s
+medir(datos.count)        # ~4-5 s otra vez: recalcula desde HDFS
+datos.cache()
+medir(datos.count)        # ~6 s: calcula y guarda en memoria
+medir(datos.count)        # <1 s: sale de memoria → mirá la pestaña Storage
+```
+
+Después de pegar el `def medir`, dale Enter en la línea vacía para cerrar la función.
+
+### 5. DataFrames y el optimizer (Catalyst)
+
+Catalyst optimiza **DataFrames y SQL**, no RDDs: con `map`/`reduceByKey` Spark ejecuta
+exactamente lo que escribiste.
+
+```python
+from pyspark.sql import functions as F
+df = spark.read.csv("hdfs://namenode:9000/demo/dataset_demo.csv", header=True, inferSchema=True)
+df.printSchema()
+df.show(5)
+
+q = (df.filter(F.col("producto") == "Notebook")
+       .groupBy("sucursal").agg(F.sum("total").alias("facturado"))
+       .filter(F.col("sucursal") != "Salta")      # a propósito DESPUÉS del groupBy
+       .orderBy(F.desc("facturado")))
+q.show()
+q.explain(True)           # Parsed → Analyzed → Optimized → Physical
+```
+
+`inferSchema=True` lee el archivo una vez de más para adivinar los tipos: tarda unos segundos.
+
+`q.show()` da Rosario primero con **$360.774.174.285**: el mismo número que calculó
+`consulta.sh` en la demo de HDFS con `hdfs dfs -cat | awk`, leyendo bloque por bloque desde un
+solo proceso. Acá lo calcularon varias tareas en paralelo, en una línea.
+
+Qué mirar en el `explain`:
+
+| Optimización | Dónde se ve |
+|---|---|
+| **Predicate pushdown** | En el *Optimized Logical Plan*, el filtro `sucursal != Salta` bajó por debajo del `Aggregate` y se unió con el de `Notebook` en un solo `Filter`. |
+| **Column pruning** | `ReadSchema` lista solo `sucursal`, `producto` y `total`: de las 6 columnas del CSV lee 3. |
+| **Filtros empujados al lector** | `PushedFilters: [... EqualTo(producto,Notebook), Not(EqualTo(sucursal,Salta))]` |
+| **Combiner automático** | Dos `HashAggregate`: `partial_sum` antes del `Exchange` (el shuffle) y `sum` después. |
+
+Versión más legible: `q.explain("formatted")`. En la UI: <http://localhost:4040> →
+*SQL / DataFrame* → la consulta, con el plan físico como grafo y las filas de cada operador.
+
+### 6. Spark SQL
+
+```python
+df.createOrReplaceTempView("ventas")
+
+spark.sql("""
+  SELECT producto, SUM(cantidad) AS unidades, ROUND(AVG(precio_unitario)) AS precio_medio
+  FROM ventas
+  GROUP BY producto
+  ORDER BY unidades DESC
+""").show()
+```
+
+Por dentro es el mismo motor y el mismo optimizer que el DataFrame del paso 5.
+
+### 7. Tolerancia a fallas (opcional)
+
+Lanzá un job de ~40 s y, mientras corre, en otra terminal `docker stop spark-worker-1`
+(al final, `docker start spark-worker-1`):
 
 ```python
 def lento(it):
@@ -114,6 +213,16 @@ def lento(it):
 
 sc.textFile("hdfs://namenode:9000/demo/dataset_demo.csv", 24).mapPartitions(lento).sum()
 ```
+
+En el shell aparecen los `Lost executor` / `Lost task` y el resultado sale igual.
+
+### Tips para tipear en vivo
+
+- Un bloque de varias líneas entre paréntesis o triples comillas se pega entero.
+- `lines.reduceByKey?` no funciona (es el REPL de Python, no IPython): usá `help(lines.reduceByKey)`.
+- Si una acción queda colgada sin avanzar, mirá <http://localhost:8080>: si otra aplicación
+  tiene todos los cores, la tuya queda en *WAITING*. Por eso conviene `--total-executor-cores 2`.
+- Ctrl+C cancela el job en curso sin cerrar el shell.
 
 ## Diferencias con el guion original
 
