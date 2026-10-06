@@ -1,0 +1,60 @@
+{"index":{"_id":"1"}}
+{"nombre":"Notebook Ultraliviana 13","marca":"Lumen","categoria":"Notebook","precio":1250000,"descripcion":"Notebook ultraliviana de 1,1 kg con batería de 14 horas, ideal para viajar y trabajar desde cualquier lugar."}
+{"index":{"_id":"2"}}
+{"nombre":"Notebook Gamer Titan 16","marca":"Vortex","categoria":"Notebook","precio":2400000,"descripcion":"Notebook gamer con placa de video dedicada, pantalla de 165 Hz y teclado retroiluminado RGB. Pesada pero muy potente."}
+{"index":{"_id":"3"}}
+{"nombre":"Notebook Oficina 15","marca":"Lumen","categoria":"Notebook","precio":780000,"descripcion":"Notebook económica para oficina y estudio, con teclado numérico y pantalla de 15,6 pulgadas."}
+{"index":{"_id":"4"}}
+{"nombre":"Notebook 2 en 1 Flex","marca":"Orbis","categoria":"Notebook","precio":1100000,"descripcion":"Convertible con pantalla táctil que se dobla como tablet. Liviana, con lápiz incluido para tomar notas."}
+{"index":{"_id":"5"}}
+{"nombre":"Notebook Pro 14 para desarrolladores","marca":"Vortex","categoria":"Notebook","precio":1900000,"descripcion":"32 GB de memoria y disco SSD de 1 TB, pensada para programar, correr contenedores Docker y entrenar modelos."}
+{"index":{"_id":"6"}}
+{"nombre":"Celular Nova X","marca":"Orbis","categoria":"Celular","precio":650000,"descripcion":"Celular con cámara de 108 MP, batería que dura dos días y carga rápida de 65 W."}
+{"index":{"_id":"7"}}
+{"nombre":"Celular Compacto Mini","marca":"Lumen","categoria":"Celular","precio":420000,"descripcion":"Celular chico y liviano, entra en cualquier bolsillo. Ideal para quien busca algo simple."}
+{"index":{"_id":"8"}}
+{"nombre":"Celular Resistente Outdoor","marca":"Terra","categoria":"Celular","precio":510000,"descripcion":"Celular resistente al agua y a los golpes, certificado IP68, pensado para trekking y viajes de aventura."}
+{"index":{"_id":"9"}}
+{"nombre":"Celular Plegable Fold","marca":"Vortex","categoria":"Celular","precio":1800000,"descripcion":"Celular con pantalla plegable que se abre como una tablet chica. Lo último en diseño."}
+{"index":{"_id":"10"}}
+{"nombre":"Tablet Lectura 10","marca":"Lumen","categoria":"Tablet","precio":310000,"descripcion":"Tablet de 10 pulgadas con pantalla mate que no refleja, cómoda para leer libros y apuntes durante horas."}
+{"index":{"_id":"11"}}
+{"nombre":"Tablet Kids","marca":"Orbis","categoria":"Tablet","precio":190000,"descripcion":"Tablet para chicos con funda antigolpes y control parental."}
+{"index":{"_id":"12"}}
+{"nombre":"Tablet Pro Dibujo","marca":"Vortex","categoria":"Tablet","precio":980000,"descripcion":"Tablet para diseño y dibujo con lápiz de alta precisión y pantalla de 12,9 pulgadas."}
+{"index":{"_id":"13"}}
+{"nombre":"Auriculares Silence 700","marca":"Sonar","categoria":"Auriculares","precio":290000,"descripcion":"Auriculares inalámbricos con cancelación activa de ruido, ideales para viajar en avión o trabajar en lugares ruidosos."}
+{"index":{"_id":"14"}}
+{"nombre":"Auriculares Deportivos Run","marca":"Sonar","categoria":"Auriculares","precio":85000,"descripcion":"Auriculares inalámbricos deportivos, resistentes al sudor, que no se caen al correr."}
+{"index":{"_id":"15"}}
+{"nombre":"Auriculares Gamer Headset 7.1","marca":"Vortex","categoria":"Auriculares","precio":120000,"descripcion":"Headset gamer con micrófono, sonido envolvente 7.1 y luces RGB. Con cable USB."}
+{"index":{"_id":"16"}}
+{"nombre":"Auriculares In-Ear Básicos","marca":"Orbis","categoria":"Auriculares","precio":18000,"descripcion":"Auriculares con cable, livianos y económicos, con micrófono para llamadas."}
+{"index":{"_id":"17"}}
+{"nombre":"Auriculares Estudio Monitor","marca":"Sonar","categoria":"Auriculares","precio":210000,"descripcion":"Auriculares de estudio con cable, respuesta plana para grabar y mezclar música."}
+{"index":{"_id":"18"}}
+{"nombre":"Monitor 27 4K","marca":"Lumen","categoria":"Monitor","precio":540000,"descripcion":"Monitor de 27 pulgadas con resolución 4K y colores calibrados para diseño y fotografía."}
+{"index":{"_id":"19"}}
+{"nombre":"Monitor Gamer 240 Hz","marca":"Vortex","categoria":"Monitor","precio":620000,"descripcion":"Monitor gamer de 24 pulgadas a 240 Hz con 1 ms de respuesta para juegos competitivos."}
+{"index":{"_id":"20"}}
+{"nombre":"Monitor Portátil USB-C","marca":"Orbis","categoria":"Monitor","precio":260000,"descripcion":"Segunda pantalla portátil y liviana de 15 pulgadas que se conecta a la notebook con un solo cable USB-C. Ideal para viajar."}
+{"index":{"_id":"21"}}
+{"nombre":"Monitor Ultrawide 34","marca":"Lumen","categoria":"Monitor","precio":890000,"descripcion":"Monitor curvo ultrawide de 34 pulgadas, ideal para planillas grandes y para programar con varias ventanas."}
+{"index":{"_id":"22"}}
+{"nombre":"Teclado Mecánico TKL","marca":"Vortex","categoria":"Teclado","precio":95000,"descripcion":"Teclado mecánico compacto sin pad numérico, switches rojos silenciosos y luces RGB."}
+{"index":{"_id":"23"}}
+{"nombre":"Teclado Inalámbrico Slim","marca":"Lumen","categoria":"Teclado","precio":48000,"descripcion":"Teclado inalámbrico finito y silencioso, se conecta por Bluetooth hasta a tres dispositivos."}
+{"index":{"_id":"24"}}
+{"nombre":"Teclado Ergonómico Split","marca":"Orbis","categoria":"Teclado","precio":130000,"descripcion":"Teclado ergonómico dividido que reduce el dolor de muñecas en jornadas largas de trabajo."}
+{"index":{"_id":"25"}}
+{"nombre":"Mouse Ergonómico Vertical","marca":"Orbis","categoria":"Mouse","precio":42000,"descripcion":"Mouse vertical inalámbrico que mantiene la mano en posición natural y evita el dolor de muñeca."}
+{"index":{"_id":"26"}}
+{"nombre":"Mouse Gamer Pro","marca":"Vortex","categoria":"Mouse","precio":65000,"descripcion":"Mouse gamer ultraliviano de 58 gramos con sensor de 26000 DPI."}
+{"index":{"_id":"27"}}
+{"nombre":"Mouse de Viaje Plegable","marca":"Lumen","categoria":"Mouse","precio":25000,"descripcion":"Mouse inalámbrico que se pliega para guardarlo en la mochila. Liviano y práctico para viajar."}
+{"index":{"_id":"28"}}
+{"nombre":"Impresora Láser Monocromática","marca":"Terra","categoria":"Impresora","precio":230000,"descripcion":"Impresora láser rápida en blanco y negro, ideal para oficinas que imprimen mucho."}
+{"index":{"_id":"29"}}
+{"nombre":"Impresora Multifunción Wi-Fi","marca":"Orbis","categoria":"Impresora","precio":175000,"descripcion":"Imprime, escanea y copia en color. Se conecta por Wi-Fi para imprimir desde el celular."}
+{"index":{"_id":"30"}}
+{"nombre":"Impresora Fotográfica Portátil","marca":"Lumen","categoria":"Impresora","precio":120000,"descripcion":"Impresora chica y portátil para imprimir fotos al instante desde el celular, ideal para viajes y eventos."}

@@ -1,0 +1,35 @@
+# Redis de demo + RedisInsight (UI web para ver las claves).
+# Uso:  docker compose up -d
+#   redis-cli:     docker exec -it redis redis-cli
+#   RedisInsight:  http://localhost:5540  (agregar base: host "redis", puerto 6379)
+
+services:
+  redis:
+    image: redis:8.2
+    container_name: redis
+    hostname: redis
+    # appendonly: persiste cada escritura en disco (AOF) -> los datos sobreviven a un reinicio
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redisinsight:
+    image: redis/redisinsight:2.70
+    container_name: redisinsight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      - redis
+
+volumes:
+  redis_data:
+  redisinsight_data:
