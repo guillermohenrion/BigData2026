@@ -1,0 +1,31 @@
+# Spark Structured Streaming leyendo del cluster Kafka de ../kafka-demo.
+# Requiere kafka-demo corriendo (crea la red kafka-demo_default).
+# Uso:  docker compose up -d   y después   ./scripts/demo.sh
+#   Spark UI (pestaña Structured Streaming): http://localhost:4041 mientras corre un job
+#   (4040 lo usa el driver de la demo Spark de la clase 2)
+
+services:
+  spark:
+    image: apache/spark:3.5.3
+    container_name: spark-streaming
+    hostname: spark-streaming
+    # Root para poder escribir el cache de Maven/Ivy (conector de Kafka) en el volumen.
+    user: root
+    environment:
+      - HOME=/root
+    # Contenedor "vacío": los jobs se lanzan con docker exec ... spark-submit (ver demo.sh)
+    command: tail -f /dev/null
+    ports:
+      - "4041:4040"
+    volumes:
+      - ./scripts:/opt/demo:ro
+      - ivy_cache:/root/.ivy2
+    networks:
+      - kafka-demo_default
+
+volumes:
+  ivy_cache:
+
+networks:
+  kafka-demo_default:
+    external: true
