@@ -1,0 +1,58 @@
+# MongoDB de demo: replica set de 3 nodos (rs0) + Mongo Express (UI web).
+# Uso:  docker compose up -d   y después   ./scripts/demo.sh 0   (inicia el replica set)
+#   mongosh:        docker exec -it mongo1 mongosh "mongodb://mongo1,mongo2,mongo3/tienda?replicaSet=rs0"
+#   Mongo Express:  http://localhost:8083   (8081 lo usa el Worker de Spark de la clase 2)
+#   Compass:        mongodb://localhost:27017/?directConnection=true   (solo mongo1)
+
+x-mongo: &mongo
+  image: mongo:8.0
+  command: mongod --replSet rs0 --bind_ip_all
+  healthcheck:
+    test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+    interval: 5s
+    timeout: 5s
+    retries: 20
+
+services:
+  mongo1:
+    <<: *mongo
+    container_name: mongo1
+    hostname: mongo1
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo1_data:/data/db
+
+  mongo2:
+    <<: *mongo
+    container_name: mongo2
+    hostname: mongo2
+    volumes:
+      - mongo2_data:/data/db
+
+  mongo3:
+    <<: *mongo
+    container_name: mongo3
+    hostname: mongo3
+    volumes:
+      - mongo3_data:/data/db
+
+  mongo-express:
+    image: mongo-express:1.0.2
+    container_name: mongo-express
+    # Reintenta hasta que el replica set esté iniciado (paso 0 de demo.sh)
+    restart: unless-stopped
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0
+      - ME_CONFIG_BASICAUTH=false
+    ports:
+      - "8083:8081"
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
